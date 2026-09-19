@@ -1,0 +1,26 @@
+# Node
+node_modules/
+backend/node_modules/
+frontend/node_modules/
+
+# Python
+ml/venv/
+__pycache__/
+*.pyc
+
+# Environment
+.env
+backend/.env
+frontend/.env
+
+# ML model
+ml/model.pkl
+
+# Mac
+.DS_Store
+
+# Vite
+frontend/dist/
+
+# Logs
+*.log
