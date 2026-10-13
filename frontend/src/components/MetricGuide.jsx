@@ -1,6 +1,8 @@
 import { FiBookOpen, FiChevronDown, FiInfo } from 'react-icons/fi'
 
 const meanings = [
+  ['Lead time y fecha de pedido', 'Días desde el pedido hasta la llegada. La fecha límite de pedido es la fecha estimada de quiebre menos el lead time.', 'PEDIR si la fecha límite llegó; VIGILAR si es futura o faltan datos; OK si el stock cubre el horizonte.'],
+  ['Cantidad sugerida de compra', 'Unidades que faltan para cubrir el resto del mes actual y el próximo mes con faltante. Las compras posteriores cubren cada mes descontando los lotes propuestos anteriores.', 'No confundas la próxima compra mensual con el faltante acumulado de varios meses. Revisá las órdenes en camino antes de confirmar.'],
   ['Demanda prevista', 'Cuántas unidades se estima que comprarán los clientes en el período indicado. Es una proyección, no un pedido confirmado.', 'Usala para planificar compras y contrastala con el stock.'],
   ['% del volumen', 'Qué parte de todas las unidades previstas del período representa esta fila. Por ejemplo, 10% significa 10 de cada 100 unidades; no es un porcentaje de crecimiento.', 'Te ayuda a identificar qué clientes o productos tienen más peso. La búsqueda no cambia el total de referencia.'],
   ['Tendencia', 'Cuánto sube o baja la predicción respecto a las ventas del mes cerrado que aparece debajo. +20% significa que se espera vender un 20% más que en ese mes.', 'Si sube, revisá el abastecimiento. Si baja, validá la próxima compra con el cliente antes de aumentar inventario.'],

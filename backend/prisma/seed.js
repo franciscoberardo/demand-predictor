@@ -1,9 +1,11 @@
+require('dotenv').config({ path: require('node:path').join(__dirname, '../.env'), quiet: true });
 const { PrismaClient } = require("@prisma/client");
 
 const prisma = new PrismaClient();
 
 async function main() {
   // Limpiar datos anteriores
+  await prisma.forecast.deleteMany();
   await prisma.sale.deleteMany();
   await prisma.customer.deleteMany();
   await prisma.product.deleteMany();
@@ -31,7 +33,9 @@ async function main() {
         name: `Producto ${i}`,
         category: ["Rodamientos", "Correas", "Lubricantes"][i % 3],
         price: 10000 + i * 1500,
+        // Foto ficticia del stock físico actual, independiente del historial generado.
         stock: 500 + i * 50,
+        leadTimeDays: [15, 20, 30, 45, 60][(i - 1) % 5],
       },
     });
 
@@ -97,7 +101,7 @@ async function main() {
 }
 
 main()
-  .catch(console.error)
+  .catch(error => { console.error(error); process.exitCode = 1; })
   .finally(async () => {
     await prisma.$disconnect();
   });

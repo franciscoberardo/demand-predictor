@@ -1,28 +1,15 @@
+import json
 import joblib
 import pandas as pd
-from sqlalchemy import create_engine
 from lightgbm import LGBMRegressor
 from sklearn.metrics import mean_absolute_error
 
-# 1. Conectarnos a PostgreSQL
-DATABASE_URL = "postgresql://postgres:postgres@localhost:5433/demand_predictor"
-engine = create_engine(DATABASE_URL)
+from data import ROOT, engine as make_engine, load_monthly
 
-# 2. Traer las ventas
-query = """
-SELECT
-    "customerId",
-    "productId",
-    date,
-    quantity
-FROM "Sale"
-ORDER BY date;
-"""
-
-df = pd.read_sql(query, engine)
-
-print("Ventas cargadas:", len(df))
-print(df.head())
+engine = make_engine()
+current = pd.Timestamp.now(tz="UTC").tz_localize(None).to_period("M").to_timestamp()
+df = load_monthly(engine, current)
+print("Meses cargados:", len(df))
 
 # 3. Crear año y mes
 df["date"] = pd.to_datetime(df["date"])
@@ -82,9 +69,11 @@ model = LGBMRegressor(
     random_state=42
 )
 
+if train.empty or test.empty:
+    raise ValueError("Se necesitan al menos 7 meses cerrados para entrenar y evaluar")
+
 model.fit(X_train, y_train)
-joblib.dump(model, "model.pkl")
-print("Modelo guardado en model.pkl")
+
 
 # 7. Probarlo con datos que no vio
 predictions = model.predict(X_test)
@@ -103,3 +92,13 @@ results["prediction"] = predictions
 
 print("\nEjemplos:")
 print(results.head(20))
+# Evaluate chronologically, then refit the production model on all closed months.
+model.fit(X, y)
+joblib.dump(model, ROOT / "model.pkl")
+
+(ROOT / 'metrics.json').write_text(json.dumps({
+    'mae': float(mae), 'evaluatedAt': pd.Timestamp.now(tz='UTC').isoformat(),
+    'testStart': str(test.date.min().date()), 'testEnd': str(test.date.max().date()),
+    'evaluation': 'one-step chronological holdout; not a six-month error estimate'
+}, indent=2))
+print("Modelo final y métricas guardados en ml/")
